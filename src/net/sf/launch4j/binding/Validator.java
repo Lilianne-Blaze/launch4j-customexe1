@@ -39,6 +39,7 @@ package net.sf.launch4j.binding;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 import net.sf.launch4j.Util;
 import net.sf.launch4j.config.ConfigPersister;
@@ -46,6 +47,7 @@ import net.sf.launch4j.config.ConfigPersister;
 /**
  * @author Copyright (C) 2004 Grzegorz Kowal
  */
+@Slf4j
 public class Validator {
 	public static final String ALPHANUMERIC_PATTERN = "[\\w]*?";
 	public static final String ALPHA_PATTERN = "[\\w&&\\D]*?";
@@ -247,6 +249,7 @@ public class Validator {
 	}
 
 	public static void signalViolation(String property, String msg)	{
-		throw new InvariantViolationException(property, msg);
+		log.warn("Problem validating property {}: {}",property,msg);
+		//throw new InvariantViolationException(property, msg);
 	}
 }
