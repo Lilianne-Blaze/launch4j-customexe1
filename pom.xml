@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sf.launch4j</groupId>
 	<artifactId>launch4j</artifactId>
-	<version>3.51</version>
-	<name>Launch4j</name>
+	<version>3.50-customexe1</version>
+	<name>Launch4j-customexe1</name>
 	<description>Cross-platform Java executable wrapper for creating lightweight Windows native EXEs. Provides advanced JRE search, application startup configuration and better user experience.</description>
 	<url>http://sourceforge.net/projects/launch4j/</url>
 
@@ -29,23 +29,55 @@
 		</developer>
 	</developers>
 
+        <!--
 	<scm>
 		<connection>scm:git:http://git.code.sf.net/p/launch4j/git</connection>
 		<developerConnection>scm:git:http://git.code.sf.net/p/launch4j/git</developerConnection>
 		<url>http://sourceforge.net/p/launch4j/git/ci/master/tree/</url>
 	</scm>
+        -->
 
+        <!--
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+        -->
 
+    <distributionManagement>
+        <repository>
+            <id>repsy-lbnet-releases</id>
+            <url>https://repo.repsy.io/mvn/lilianne_blaze/lbnet-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>repsy-lbnet-snapshots</id>
+            <url>https://repo.repsy.io/mvn/lilianne_blaze/lbnet-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>repsy-lbnet-releases</id>
+            <url>https://repo.repsy.io/mvn/lilianne_blaze/lbnet-releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>repsy-lbnet-snapshots</id>
+            <url>https://repo.repsy.io/mvn/lilianne_blaze/lbnet-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<versionNumber>3.51.0.0</versionNumber>
-		<version>3.51</version>
+		<versionNumber>3.50.0.0</versionNumber>
+		<version>3.50</version>
 	</properties>
 
 	<dependencies>
@@ -159,8 +191,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>8</source>
+					<target>8</target>
+                                        <release>8</release>
 				</configuration>
 			</plugin>
 			<plugin>
