@@ -1,6 +1,10 @@
 /build
 /target
-demo/ModuleApp/mlib
-demo/ModuleApp/mods
-demo/ModuleApp/ModuleApp
+
 /maven/target/
+/launch4j-customexe1-demo1/target/
+
+dependency-reduced-pom.xml
+
+*.jar
+*.bak
