@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import lombok.extern.slf4j.Slf4j;
 
 import net.sf.launch4j.binding.InvariantViolationException;
 import net.sf.launch4j.config.Config;
@@ -51,6 +52,7 @@ import net.sf.launch4j.config.ConfigPersister;
 /**
  * @author Copyright (C) 2005 Grzegorz Kowal
  */
+@Slf4j
 public class Builder {
 	private final Log _log;
 	private final File _basedir;
@@ -69,12 +71,23 @@ public class Builder {
 	 * @return Output file path.
 	 */
 	public File build() throws BuilderException {
+	    
 		final Config c = ConfigPersister.getInstance().getConfig();
 		try {
 			c.validate();
 		} catch (InvariantViolationException e) {
 			throw new BuilderException(e.getMessage());
 		}
+		
+		String varCustomExe = VarUtils.getVariable(c, "launch4j.customExe", true, null);
+		boolean varKeepTempFiles = Boolean.valueOf(VarUtils.getVariable(c, "launch4j.keepTempFiles", true, "false"));
+		
+		if(true)
+		{
+			log.warn("launch4j.customExe="+varCustomExe);
+			log.warn("launch4j.keepTempFiles="+varKeepTempFiles);
+		}
+		
 		File rc = null;
 		File ro = null;
 		File outfile = null;
@@ -86,35 +99,71 @@ public class Builder {
 				_log.append("WARNING: Some features are not implemented in JNI headers, see documentation.");
 			}
 
-			rc = rcb.build(c);
-			ro = Util.createTempFile("o");
-			outfile = ConfigPersister.getInstance().getOutputFile();
+			if( c.getHeaderType().equals("customExe"))
+			{
+				log.info("Preparing custom header");
+				
+				rc = rcb.build(c);
+				ro = Util.createTempFile(".res");
+				outfile = ConfigPersister.getInstance().getOutputFile();
 
-			Cmd resCmd = new Cmd(_basedir);
-			resCmd.addExe("windres")
-					.add(Util.WINDOWS_OS ? "--preprocessor=type" : "--preprocessor=cat")
-					.add("-J rc -O coff -F pe-i386")
-					.addAbsFile(rc)
-					.addAbsFile(ro);
-			_log.append(Messages.getString("Builder.compiling.resources"));
-			resCmd.exec(_log);
+				Cmd resCmd = new Cmd(_basedir);
+				resCmd.addExe("windres")
+						.add(Util.WINDOWS_OS ? "--preprocessor=type" : "--preprocessor=cat")
+						.add("-J rc -O res")
+						.addAbsFile(rc)
+						.addAbsFile(ro);
+				_log.append(Messages.getString("Builder.compiling.resources"));
+				resCmd.exec(_log);
 
-			Cmd ldCmd = new Cmd(_basedir);
-			ldCmd.addExe("ld")
-					.add("-mi386pe")
-					.add("--oformat pei-i386")
-					.add("--dynamicbase")
-					.add("--nxcompat")
-					.add("--no-seh")
-					.add(c.isGuiApplication() ? "--subsystem windows" : "--subsystem console")
-					.add("-s")		// strip symbols
-					.addFiles(c.getHeaderObjects())
-					.addAbsFile(ro)
-					.addFiles(c.getLibs())
-					.add("-o")
-					.addAbsFile(outfile);
-			_log.append(Messages.getString("Builder.linking"));
-			ldCmd.exec(_log);
+				Cmd rhCmd2 = new Cmd(_basedir);
+				rhCmd2.addAbsFile(new File("C:\\Program Files (x86)\\Resource Hacker\\ResourceHacker.exe"));
+				rhCmd2.add("-open");
+				//rhCmd2.addAbsFile(new File("C:\\Local_Documents\\GitHub2024_synced\\sandbox-pascal1-prv\\pascal\\sling4j-alpha0\\sling4j_alpha0.exe"));
+				rhCmd2.addAbsFile(new File(varCustomExe));
+			
+				rhCmd2.add("-save");
+				rhCmd2.addAbsFile(outfile);
+				rhCmd2.add("-action");
+				rhCmd2.add("addoverwrite");
+				rhCmd2.add("-resource");
+				rhCmd2.addAbsFile(ro);
+				rhCmd2.exec(_log);
+			}
+			else
+			{
+				log.info("Preparing standard header");
+			    
+				rc = rcb.build(c);
+				ro = Util.createTempFile("o");
+				outfile = ConfigPersister.getInstance().getOutputFile();
+
+				Cmd resCmd = new Cmd(_basedir);
+				resCmd.addExe("windres")
+						.add(Util.WINDOWS_OS ? "--preprocessor=type" : "--preprocessor=cat")
+						.add("-J rc -O coff -F pe-i386")
+						.addAbsFile(rc)
+						.addAbsFile(ro);
+				_log.append(Messages.getString("Builder.compiling.resources"));
+				resCmd.exec(_log);
+
+				Cmd ldCmd = new Cmd(_basedir);
+				ldCmd.addExe("ld")
+						.add("-mi386pe")
+						.add("--oformat pei-i386")
+						.add("--dynamicbase")
+						.add("--nxcompat")
+						.add("--no-seh")
+						.add(c.isGuiApplication() ? "--subsystem windows" : "--subsystem console")
+						.add("-s")		// strip symbols
+						.addFiles(c.getHeaderObjects())
+						.addAbsFile(ro)
+						.addFiles(c.getLibs())
+						.add("-o")
+						.addAbsFile(outfile);
+				_log.append(Messages.getString("Builder.linking"));
+				ldCmd.exec(_log);
+			}
 
 			if (!c.isDontWrapJar()) {
 				_log.append(Messages.getString("Builder.wrapping"));
