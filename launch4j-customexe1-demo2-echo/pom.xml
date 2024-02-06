@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
-    <artifactId>launch4j-customexe1-demo1</artifactId>
+    <artifactId>launch4j-customexe1-demo2</artifactId>
     <version>0.0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
@@ -10,7 +10,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <maven.compiler.release>8</maven.compiler.release>
-        <exec.mainClass>com.example.launch4j_customexe1_demo1.Launch4jCustomexe1Demo1</exec.mainClass>
+        <exec.mainClass>com.example.launch4j_customexe1_demo2.Launch4jCustomexe1Demo2</exec.mainClass>
     </properties>
     
     <dependencies>
@@ -33,51 +33,11 @@
             <version>1.4.14</version>
             <optional>true</optional>
         </dependency>
-
-        <dependency>
-            <groupId>net.sling4j</groupId>
-            <artifactId>sling4j-standard-preloaders</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
         
     </dependencies>
     
     <build>
         <plugins>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.1</version>
-                <executions>
-                    <execution>
-                        <id>unpack-sling4j-preloaders</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>net.sling4j</groupId>
-                                    <artifactId>sling4j-standard-preloaders</artifactId>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/target/sling4j</outputDirectory>
-                                    <includes>/META-INF/sling4j/**</includes>
-                                    <fileMappers>
-                                        <org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
-                                            <pattern>^\QMETA-INF/sling4j/\E</pattern>
-                                            <replacement>./</replacement>
-                                        </org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
-                                    </fileMappers>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -114,26 +74,54 @@
                 </dependencies>
                 <executions>
                     <execution>
+                        <id>primary</id>
                         <goals>
                             <goal>launch4j</goal>
                         </goals>
+                        <configuration>
+                            <headerType>customExe</headerType>
+                            <requireAdminRights>false</requireAdminRights>
+                            <vars>
+                                <var>launch4j.customExe=${customExe}</var>
+                                <var>launch4j.keepTempFiles=true</var>
+                                <var>customexe2.var1=212121</var>
+                                <var>customexe2.var2=two</var>
+                                <var>customexe2.var3=true</var>
+                                <!--<var>sling4j.dump=envVars,rcStrings,javaVars</var>-->
+                                <var>sling4j.dump=rcStrings,javaVars</var>
+                            </vars>
+                            <jre>
+                                <minVersion>8</minVersion>
+                                <maxVersion>17</maxVersion>
+                                <requiresJdk>false</requiresJdk>
+                                <requires64Bit>true</requires64Bit>
+                            </jre>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>l4j-old-console</id>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <outfile>${project.build.directory}/${project.artifactId}-old-console.exe</outfile>
+                            <headerType>console</headerType>
+                            <requireAdminRights>false</requireAdminRights>
+                            <jre>
+                                <minVersion>8</minVersion>
+                            </jre>
+                            <vars>
+                                <var>launch4j.customExe=${customExe}</var>
+                                <var>launch4j.keepTempFiles=true</var>
+                            </vars>                        
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
-                    <headerType>customExe</headerType>
-                    <requireAdminRights>false</requireAdminRights>
                     <vars>
-                        <!--<var>launch4j.customExe=${customExe}</var>-->
-                        <var>launch4j.customExe=${basedir}/target/sling4j/standard-preloaders/sling4j_alpha0-debug.exe</var>
-                        <!--<var>launch4j.customExe=${basedir}/target/sling4j/standard-preloaders/dumpall-alpha1.exe</var>-->
-                        <var>launch4j.keepTempFiles=true</var>
+                        <var>sharedvar1=test1</var>
+                        <var>sharedvar2=test2</var>
                     </vars>
-                    <jre>
-                        <minVersion>8</minVersion>
-                        <maxVersion>17</maxVersion>
-                        <requiresJdk>false</requiresJdk>
-                        <requires64Bit>true</requires64Bit>
-                    </jre>
                 </configuration>
             </plugin>
             
